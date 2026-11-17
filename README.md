@@ -3,6 +3,8 @@
 学習パック向けの勤怠デモ（読み取り専用）。  
 ダミー社員の月次勤怠表と合計だけを返す。本番の勤怠（wizway_kintai）とは別リポジトリ。
 
+**OpenSpec + Serena 導入済みの見本リポジトリ。** 仕様駆動の change（`demo-kintai`）、Serena ルール／メモリ、apply の接続ゲートまで入っている。
+
 **React + TypeScript + Python Lambda + API Gateway (HTTP API) + 同梱 SQLite**
 
 | 経路 | 役割 |
