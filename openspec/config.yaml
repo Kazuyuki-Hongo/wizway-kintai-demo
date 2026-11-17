@@ -1,0 +1,32 @@
+schema: spec-driven
+
+context: |
+  Language: ja
+  All artifacts must be written in ja.
+  Keep OpenSpec structural headings and SHALL/MUST keywords in English.
+
+  Project: wizway-kintai-demo。本番の勤怠（wizway_kintai、kintai.wizway.co.jp）とは別リポジトリ。
+  学習パックの見本として、仕様駆動（OpenSpec）と Serena を必須にした、読み取り専用の勤怠デモ。
+  画面は React + TypeScript。API は Python Lambda。データはダミーの SQLite。
+  載せ方は雑メモ見本と同じ（SAM、API Gateway、S3、CloudFront）。DynamoDB と RDS は足さない。
+  デプロイ先は実績づくりの学習用アカウント。本番の勤怠と同じ AWS アカウントには出さない。
+  実在の社員名・給与・住所・生年月日・本番 DB は使わない。wizway_kintai のソースはコピーしない。
+  秘密（トークン、接続文字列、プロファイルの実名）を成果物に書かない。
+
+rules:
+  proposal:
+    - 日本語で記述する
+    - 背景、目的、スコープ、非スコープ、リスクを含める
+    - 本番勤怠リポジトリと本番 AWS アカウントを変更しないことを書く
+  specs:
+    - 日本語で記述する
+    - Scenario は Given/When/Then で書く
+    - ダミーデータと、退勤が無い日、不正な年月を境界にする
+  design:
+    - 新規リポジトリの置き場と、画面・API・SQL・AWS の対応を書く
+    - Serena を必須にするスキルの置き場を書く
+    - 本番勤怠アカウントへデプロイしない手順を書く
+  tasks:
+    - 1タスクは目安2時間以内
+    - デプロイと、学習パック導入メモへの URL 追記は別タスクにする
+    - アプリのコード実装と、OpenSpec スキルの Serena 化を分ける

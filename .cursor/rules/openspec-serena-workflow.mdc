@@ -1,0 +1,55 @@
+---
+description: OpenSpec と Serena を必須にする（挙動変更時）
+alwaysApply: true
+---
+
+# OpenSpec + Serena 必須ワークフロー
+
+コードの**挙動・ロジック・画面・API・SQL・載せる構成**を変えるタスクでは、OpenSpec と Serena を必ず使う。
+
+**実装手順の正本:** `.cursor/skills/openspec-apply-change/SKILL.md`（`/opsx-apply` 時は必ず従う）  
+**Serena 詳細:** `docs/rules/project-rules-serena.md`
+
+## 適用範囲
+
+| 種別 | OpenSpec | Serena |
+|------|----------|--------|
+| 新機能・挙動変更・複数ファイル | **必須** | **必須** |
+| バグ修正（ロジック変更） | **必須**（小さな change で可） | **必須** |
+| コメント・typo・ドキュメントのみ（挙動不変） | 不要 | 不要 |
+
+## 編集してよい範囲
+
+- `frontend/`
+- `backend/`
+- `sql/`
+- `template.yaml`
+
+本番の勤怠リポジトリ、開発 VM、PHP、`php -l` の手順は対象外。このリポジトリには持ち込まない。
+
+## 実装開始前（ゲート）
+
+コード変更に入る**前**に、次をすべて満たすこと。満たさない場合は**実装を開始しない**。
+
+1. **OpenSpec**
+   - `openspec list --json` で active change を確認
+   - 実装は `/opsx-apply <change-name>` 経由（SKILL.md の手順を実行）
+
+2. **Serena MCP**（設定名: `serena_wizway_kintai_demo`。Cursor 上の namespace は `user-serena` 等になることがある）
+   - セッション初回: `initial_instructions` を呼ぶ
+   - **失敗したら実装とコード編集を止める**。接続後に `/opsx-apply` をやり直す
+   - 変更対象は編集前に `get_symbols_overview` または `find_symbol` で構造を把握する（既存コードがあるとき）
+
+## 実装中
+
+- `openspec instructions apply --change "<name>" --json` の `contextFiles` をすべて読んでから着手する
+- `tasks.md` のタスクを1件ずつ処理し、完了ごとに `- [ ]` → `- [x]`
+- 調査は Serena の `get_symbols_overview` / `find_symbol` / `search_for_pattern` を優先する
+- Serena の行番号は **0-based**
+
+## このリポジトリの約束
+
+- ダミー SQLite のみ。接続先を本番や開発 VM の MariaDB に読み替えない
+- DynamoDB と RDS は `template.yaml` に足さない
+- 実在の社員名・給与・住所・生年月日を成果物に書かない
+- 秘密（トークン、接続文字列、プロファイルの実名）を成果物に書かない

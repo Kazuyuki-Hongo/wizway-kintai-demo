@@ -1,0 +1,18 @@
+{
+  "name": "wizway-kintai-demo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "勤怠デモ — Playwright E2E",
+  "scripts": {
+    "pw:install": "playwright install chromium",
+    "pw:test": "playwright test",
+    "pw:test:attendance": "playwright test tests/e2e/attendance.spec.ts",
+    "test:api": "python -m pytest backend/tests -q"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.1",
+    "@types/node": "^22.10.0",
+    "dotenv": "^16.4.7",
+    "typescript": "^5.7.2"
+  }
+}

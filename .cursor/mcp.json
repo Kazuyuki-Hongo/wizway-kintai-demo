@@ -1,0 +1,40 @@
+{
+  "mcpServers": {
+    "serena_wizway_kintai_demo": {
+      "command": "uvx",
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "PROJECT_NAME": "wizway-kintai-demo",
+        "PROJECT_RULES_PATH": "docs/rules/project-rules-serena.md",
+        "PREFERRED_LANGUAGE": "ja"
+      },
+      "args": [
+        "-p",
+        "3.13",
+        "--from",
+        "git+https://github.com/oraios/serena",
+        "serena",
+        "start-mcp-server",
+        "--context",
+        "ide",
+        "--project",
+        "${workspaceFolder}"
+      ]
+    },
+    "awslabs.aws-serverless-mcp-server": {
+      "command": "uv",
+      "args": [
+        "tool",
+        "run",
+        "--from",
+        "awslabs.aws-serverless-mcp-server@latest",
+        "awslabs.aws-serverless-mcp-server.exe"
+      ],
+      "env": {
+        "FASTMCP_LOG_LEVEL": "ERROR",
+        "AWS_PROFILE": "<自分のプロファイル名>",
+        "AWS_REGION": "ap-northeast-1"
+      }
+    }
+  }
+}

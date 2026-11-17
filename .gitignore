@@ -1,0 +1,13 @@
+node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.production
+backend/__pycache__/
+backend/.pytest_cache/
+.aws-sam/
+*.pyc
+.DS_Store
+.env
+/playwright-report/
+/test-results/
+junit.xml
