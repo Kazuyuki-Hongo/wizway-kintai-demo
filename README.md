@@ -1,9 +1,15 @@
 # wizway-kintai-demo
 
-学習パック向けの勤怠デモ（読み取り専用）。  
-ダミー社員の月次勤怠表と合計だけを返す。本番の勤怠（wizway_kintai）とは別リポジトリ。
+学習パック向けの勤怠デモ。  
+ダミー社員の月次勤怠表と合計を返し、保存済みの日を更新できる。本番の勤怠（wizway_kintai）とは別リポジトリ。
 
-**OpenSpec + Serena 導入済みの見本リポジトリ。** 仕様駆動の change（`demo-kintai`）、Serena ルール／メモリ、apply の接続ゲートまで入っている。
+**OpenSpec + Serena 導入済みの見本。** 仕様駆動の型は次のフォルダにある。
+
+- `docs/rules/project-rules-serena.md` と `.serena/memories/` — Serena の約束と覚え書き
+- `openspec/specs/` — いまの仕様
+- `openspec/changes/` — 進行中の change
+- `openspec/changes/archive/` — 完了して移した change
+- `.cursor/skills/openspec-apply-change/` — 実装の前に Serena へ接続するゲート
 
 **React + TypeScript + Python Lambda + API Gateway (HTTP API) + 同梱 SQLite**
 
@@ -12,8 +18,9 @@
 | `GET /employees` | ダミー社員の識別子と表示名 |
 | `GET /employees/{id}/months/{ym}` | 指定月の勤怠行（`ym` は `YYYY-MM`） |
 | `GET /employees/{id}/months/{ym}/summary` | 出勤日数・総実働・8時間超過・退勤なし件数 |
+| `PUT /employees/{id}/months/{ym}/days/{date}` | 保存済みの1日を更新する。行が無い日は作らない |
 
-データは Lambda に同梱した SQLite のみ。DynamoDB と RDS は使わない。ログインは無い。保存はしない。
+データは Lambda に同梱した SQLite が初期データ。更新は実行環境のコピーに書き、やり直すと初期データに戻る。DynamoDB と RDS は使わない。ログインは無い。
 
 ## 動いている画面（デプロイ済み）
 
@@ -25,11 +32,15 @@
 ## 構成
 
 ```
-backend/          Python Lambda（読み取り API + 同梱 SQLite）
+backend/          Python Lambda（API + 同梱 SQLite）
 frontend/         React + TypeScript（Vite）
 sql/              表定義・シード・合計 SELECT
 template.yaml     SAM（HTTP API + Lambda + S3 + CloudFront）
 docs/architecture.drawio  構成図
+docs/rules/       Serena のプロジェクトルール
+openspec/         仕様と change（進行中と archive）
+backend/tests/    API の pytest
+tests/e2e/        画面の受け入れ確認（Playwright）
 ```
 
 ### 構成図
@@ -105,7 +116,7 @@ npm run dev
 
 ## テスト
 
-案件管理と同様に、ルートの Playwright と `tests/e2e/` を使う。詳細は [tests/e2e/README.md](tests/e2e/README.md)。
+API の pytest は `backend/tests/`。画面の受け入れ確認は、リポジトリ直下の Playwright と `tests/e2e/`。詳細は [tests/e2e/README.md](tests/e2e/README.md)。
 
 ```powershell
 python -m pip install --user -r backend/requirements-dev.txt

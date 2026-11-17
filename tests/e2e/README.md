@@ -1,6 +1,6 @@
 # 勤怠デモ Playwright E2E
 
-案件管理（`wizway_anken`）の Playwright 配置に合わせ、`tests/e2e/` とルートの `playwright.config.ts` で動かす。  
+Playwright はリポジトリ直下の `playwright.config.ts` と `tests/e2e/` で動かす。  
 このデモはログインが無いので、`storageState` と auth-setup は使わない。
 
 ## 前提

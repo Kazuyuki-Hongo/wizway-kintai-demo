@@ -45,6 +45,27 @@ def main() -> None:
     assert "通常出勤" in cats and "欠勤" in cats
     assert has_missing and has_over and has_normal
 
+    month_sql = (ROOT / "month_rows.sql").read_text(encoding="utf-8")
+    nov = list(conn.execute(month_sql, {"employee_id": 1, "ym": "2026-11"}))
+    assert [r["work_date"] for r in nov] == [
+        f"2026-11-{day:02d}" for day in range(1, 31)
+    ]
+    empty = next(r for r in nov if r["work_date"] == "2026-11-01")
+    assert empty["stored"] == 0
+    assert empty["category"] == ""
+    assert empty["clock_in"] == ""
+    assert empty["clock_out"] == ""
+    assert empty["break_time"] == ""
+    absent = next(r for r in nov if r["work_date"] == "2026-11-05")
+    assert absent["stored"] == 1
+    assert absent["category"] == "欠勤"
+    feb = list(conn.execute(month_sql, {"employee_id": 1, "ym": "2026-02"}))
+    assert [r["work_date"] for r in feb] == [
+        f"2026-02-{day:02d}" for day in range(1, 29)
+    ]
+    assert all(r["stored"] == 0 for r in feb)
+    print("calendar ok")
+
     summary_sql = (ROOT / "month_summary.sql").read_text(encoding="utf-8")
     s = dict(conn.execute(summary_sql, {"employee_id": 1, "ym": "2026-11"}).fetchone())
     print("emp1 summary:", s)
@@ -52,6 +73,15 @@ def main() -> None:
     assert float(s["total_worked_hours"]) == 17.0  # 8 + 9
     assert float(s["overtime_hours"]) == 1.0
     assert s["missing_clock_out_count"] == 1
+
+    feb_s = dict(
+        conn.execute(summary_sql, {"employee_id": 1, "ym": "2026-02"}).fetchone()
+    )
+    assert feb_s["workday_count"] == 0
+    assert float(feb_s["total_worked_hours"]) == 0.0
+    assert float(feb_s["overtime_hours"]) == 0.0
+    assert feb_s["missing_clock_out_count"] == 0
+    print("summary ok")
     print("ok")
 
 

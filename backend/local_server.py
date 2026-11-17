@@ -15,8 +15,11 @@ class Handler(BaseHTTPRequestHandler):
     def _handle(self) -> None:
         parsed = urlparse(self.path)
         path = unquote(parsed.path)
+        length = int(self.headers.get("Content-Length") or 0)
+        raw = self.rfile.read(length).decode("utf-8") if length else ""
         event = {
             "rawPath": path,
+            "body": raw,
             "requestContext": {"http": {"method": self.command}},
         }
         result = lambda_handler(event, None)
@@ -34,6 +37,9 @@ class Handler(BaseHTTPRequestHandler):
         self._handle()
 
     def do_OPTIONS(self) -> None:  # noqa: N802
+        self._handle()
+
+    def do_PUT(self) -> None:  # noqa: N802
         self._handle()
 
     def log_message(self, format: str, *args) -> None:  # noqa: A003

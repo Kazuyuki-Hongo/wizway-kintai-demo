@@ -13,6 +13,7 @@ type AttendanceRow = {
   clock_in: string
   clock_out: string
   break_time: string
+  stored: boolean
 }
 
 type Summary = {
@@ -20,6 +21,27 @@ type Summary = {
   total_worked_hours: number
   overtime_hours: number
   missing_clock_out_count: number
+}
+
+type Draft = {
+  category: string
+  clock_in: string
+  clock_out: string
+  break_time: string
+}
+
+function draftsFrom(rows: AttendanceRow[]): Record<string, Draft> {
+  const next: Record<string, Draft> = {}
+  for (const row of rows) {
+    if (!row.stored) continue
+    next[row.work_date] = {
+      category: row.category,
+      clock_in: row.clock_in,
+      clock_out: row.clock_out,
+      break_time: row.break_time,
+    }
+  }
+  return next
 }
 
 function cell(value: string) {
@@ -32,6 +54,7 @@ export default function App() {
   const [employeeId, setEmployeeId] = useState<number | ''>('')
   const [ym, setYm] = useState('2026-11')
   const [rows, setRows] = useState<AttendanceRow[]>([])
+  const [drafts, setDrafts] = useState<Record<string, Draft>>({})
   const [summary, setSummary] = useState<Summary | null>(null)
   const [error, setError] = useState('')
 
@@ -66,10 +89,13 @@ export default function App() {
       if (!summaryRes.ok) throw new Error(`合計 HTTP ${summaryRes.status}`)
       const rowsBody = (await rowsRes.json()) as { rows: AttendanceRow[] }
       const summaryBody = (await summaryRes.json()) as { summary: Summary }
-      setRows(rowsBody.rows || [])
+      const nextRows = rowsBody.rows || []
+      setRows(nextRows)
+      setDrafts(draftsFrom(nextRows))
       setSummary(summaryBody.summary)
     } catch (err: unknown) {
       setRows([])
+      setDrafts({})
       setSummary(null)
       setError(String(err))
     }
@@ -79,10 +105,50 @@ export default function App() {
     loadMonth()
   }, [loadMonth])
 
+  function updateDraft(workDate: string, patch: Partial<Draft>) {
+    setDrafts((current) => {
+      const prev = current[workDate]
+      if (!prev) return current
+      const next = { ...prev, ...patch }
+      if (patch.category === '欠勤') {
+        next.clock_in = ''
+        next.clock_out = ''
+        next.break_time = ''
+      }
+      return { ...current, [workDate]: next }
+    })
+  }
+
+  async function saveDay(workDate: string) {
+    const draft = drafts[workDate]
+    if (!API_URL || employeeId === '' || !draft) return
+    setError('')
+    try {
+      const res = await fetch(
+        `${API_URL}/employees/${employeeId}/months/${ym}/days/${workDate}`,
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(draft),
+        },
+      )
+      const payload = (await res.json().catch(() => ({}))) as { reason?: string }
+      if (!res.ok) {
+        setError(payload.reason || `保存 HTTP ${res.status}`)
+        return
+      }
+      await loadMonth()
+    } catch (err: unknown) {
+      setError(String(err))
+    }
+  }
+
   return (
     <main>
-      <h1>勤怠デモ（読み取り専用）</h1>
-      <p className="note">ダミーデータのみ。保存操作はありません。</p>
+      <h1>勤怠デモ</h1>
+      <p className="note">
+        保存済みの日は、この実行環境に保存できます。やり直すと初期データに戻ります。
+      </p>
 
       <div className="controls">
         <label>
@@ -141,18 +207,74 @@ export default function App() {
             <th>出勤</th>
             <th>退勤</th>
             <th>休憩</th>
+            <th>操作</th>
           </tr>
         </thead>
         <tbody>
-          {rows.map((row) => (
-            <tr key={row.work_date}>
-              <td>{row.work_date}</td>
-              <td>{row.category}</td>
-              <td>{cell(row.clock_in)}</td>
-              <td>{cell(row.clock_out)}</td>
-              <td>{cell(row.break_time)}</td>
-            </tr>
-          ))}
+          {rows.map((row) => {
+            const draft = drafts[row.work_date]
+            if (!row.stored || !draft) {
+              return (
+                <tr key={row.work_date}>
+                  <td>{row.work_date}</td>
+                  <td>{cell(row.category)}</td>
+                  <td>{cell(row.clock_in)}</td>
+                  <td>{cell(row.clock_out)}</td>
+                  <td>{cell(row.break_time)}</td>
+                  <td />
+                </tr>
+              )
+            }
+            return (
+              <tr key={row.work_date}>
+                <td>{row.work_date}</td>
+                <td>
+                  <select
+                    aria-label={`${row.work_date} 区分`}
+                    value={draft.category}
+                    onChange={(e) =>
+                      updateDraft(row.work_date, { category: e.target.value })
+                    }
+                  >
+                    <option value="通常出勤">通常出勤</option>
+                    <option value="欠勤">欠勤</option>
+                  </select>
+                </td>
+                <td>
+                  <input
+                    aria-label={`${row.work_date} 出勤`}
+                    value={draft.clock_in}
+                    onChange={(e) =>
+                      updateDraft(row.work_date, { clock_in: e.target.value })
+                    }
+                  />
+                </td>
+                <td>
+                  <input
+                    aria-label={`${row.work_date} 退勤`}
+                    value={draft.clock_out}
+                    onChange={(e) =>
+                      updateDraft(row.work_date, { clock_out: e.target.value })
+                    }
+                  />
+                </td>
+                <td>
+                  <input
+                    aria-label={`${row.work_date} 休憩`}
+                    value={draft.break_time}
+                    onChange={(e) =>
+                      updateDraft(row.work_date, { break_time: e.target.value })
+                    }
+                  />
+                </td>
+                <td>
+                  <button type="button" onClick={() => saveDay(row.work_date)}>
+                    {row.work_date} を保存
+                  </button>
+                </td>
+              </tr>
+            )
+          })}
         </tbody>
       </table>
     </main>
