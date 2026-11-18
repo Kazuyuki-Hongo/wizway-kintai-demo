@@ -83,18 +83,22 @@ INSERT INTO attendance_edits (
     '通常出勤', '09:00', '19:00', '01:00'
   );
 
--- draft / submitted（承認なし）/ approved / rejected。approved は承認履歴2行（却下→承認）。
+-- draft / submitted（承認なし）/ approved / rejected。
+-- id=3 は勤怠行と重ならない承認済み。id=5 は勤怠行と重なる承認済み（却下→承認の履歴2行）。
 INSERT INTO leave_requests (
   id, employee_id, leave_type, start_date, end_date, status, requested_at
 ) VALUES
   (1, 1, '有休', '2026-11-25', '2026-11-25', 'draft', '2026-11-10T09:00:00Z'),
   (2, 2, '半休', '2026-11-26', '2026-11-26', 'submitted', '2026-11-11T09:00:00Z'),
   (3, 1, '有休', '2026-11-27', '2026-11-28', 'approved', '2026-11-12T09:00:00Z'),
-  (4, 3, '欠勤届', '2026-11-05', '2026-11-05', 'rejected', '2026-11-04T09:00:00Z');
+  (4, 3, '欠勤届', '2026-11-05', '2026-11-05', 'rejected', '2026-11-04T09:00:00Z'),
+  (5, 2, '有休', '2026-11-12', '2026-11-13', 'approved', '2026-11-08T09:00:00Z');
 
 INSERT INTO leave_approvals (
   id, leave_request_id, approver_employee_id, decision, decided_at, comment
 ) VALUES
   (1, 3, 3, 'rejected', '2026-11-12T15:00:00Z', '日程を見直してください'),
   (2, 3, 3, 'approved', '2026-11-13T10:00:00Z', '再申請を承認'),
-  (3, 4, 1, 'rejected', '2026-11-04T18:00:00Z', '理由の記載が不足');
+  (3, 4, 1, 'rejected', '2026-11-04T18:00:00Z', '理由の記載が不足'),
+  (4, 5, 3, 'rejected', '2026-11-08T14:00:00Z', '期間を見直してください'),
+  (5, 5, 3, 'approved', '2026-11-09T10:00:00Z', '再申請を承認');

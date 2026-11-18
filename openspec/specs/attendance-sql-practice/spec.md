@@ -28,6 +28,7 @@
 - **THEN** status が submitted / approved / rejected / draft の申請がそれぞれ 1 件以上ある
 - **AND** 承認履歴が付く申請と、付かない submitted 申請の両方がある
 - **AND** 同一申請に承認履歴が 2 行以上あるケースが 1 件以上ある
+- **AND** 対象月の勤怠行と期間が重なる承認済み申請と、重ならない承認済み申請の両方がある
 
 ### Requirement: 既存勤怠表との共存
 
