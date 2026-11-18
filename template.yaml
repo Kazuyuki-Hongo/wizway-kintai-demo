@@ -20,9 +20,11 @@ Resources:
           - '*'
         AllowHeaders:
           - Content-Type
+          - Authorization
         AllowMethods:
           - GET
           - PUT
+          - POST
           - OPTIONS
 
   KintaiFunction:
@@ -31,7 +33,16 @@ Resources:
       FunctionName: !Sub '${AWS::StackName}-api'
       CodeUri: backend/
       Handler: app.lambda_handler
-      Description: 勤怠デモ API（同梱 SQLite。更新は実行環境のコピー）
+      Description: 勤怠デモ API（共有 SQLite）
+      Environment:
+        Variables:
+          KINTAI_DB_BUCKET: !Ref DemoDbBucket
+          KINTAI_DB_KEY: attendance.db
+      Policies:
+        - S3ReadPolicy:
+            BucketName: !Ref DemoDbBucket
+        - S3WritePolicy:
+            BucketName: !Ref DemoDbBucket
       Events:
         EmployeesGet:
           Type: HttpApi
@@ -57,6 +68,50 @@ Resources:
             ApiId: !Ref KintaiHttpApi
             Path: /employees/{id}/months/{ym}/days/{date}
             Method: PUT
+        OverviewGet:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref KintaiHttpApi
+            Path: /months/{ym}/overview
+            Method: GET
+        ExportGet:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref KintaiHttpApi
+            Path: /months/{ym}/export
+            Method: GET
+        LoginPost:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref KintaiHttpApi
+            Path: /login
+            Method: POST
+        LogoutPost:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref KintaiHttpApi
+            Path: /logout
+            Method: POST
+        DemoErrorGet:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref KintaiHttpApi
+            Path: /demo/error
+            Method: GET
+
+  DemoDbBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub '${AWS::StackName}-db-${AWS::AccountId}'
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
 
   FrontendBucket:
     Type: AWS::S3::Bucket

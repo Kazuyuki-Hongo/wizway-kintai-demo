@@ -18,9 +18,18 @@
 | `GET /employees` | ダミー社員の識別子と表示名 |
 | `GET /employees/{id}/months/{ym}` | 指定月の勤怠行（`ym` は `YYYY-MM`） |
 | `GET /employees/{id}/months/{ym}/summary` | 出勤日数・総実働・8時間超過・退勤なし件数 |
-| `PUT /employees/{id}/months/{ym}/days/{date}` | 保存済みの1日を更新する。行が無い日は作らない |
+| `GET /months/{ym}/overview` | 指定月のダミー社員全員の合計 |
+| `GET /months/{ym}/export` | 指定月の3人の全日を CSV で出す |
+| `POST /login` | 表示名とパスワードでログインする |
+| `POST /logout` | ログイン中のセッションを破棄する |
+| `PUT /employees/{id}/months/{ym}/days/{date}` | その月の1日を保存する。行が無い日は作る。入力者はログインした人 |
+| `GET /demo/error?marker=印` | 演習用。`marker` をログに出してから未処理エラーになる |
 
-データは Lambda に同梱した SQLite が初期データ。更新は実行環境のコピーに書き、やり直すと初期データに戻る。DynamoDB と RDS は使わない。ログインは無い。
+SQL 演習はデプロイ先の S3 共有 DB ではなく、リポジトリ内のローカル SQLite（`python sql/build_db.py` → `backend/data/attendance.db`）を使う。`departments` / `leave_requests` / `leave_approvals` は画面・API からは出さない演習用の表。
+
+開いたらログインする。ログインしたあとは、その人の月の日ごとが出る。左の「自分の勤怠」で自分の月に戻る。管理者だけ「全員の勤怠」から3人の合計を開き、「日ごとを入力」でその人の日ごとへ移る。CSV は全員の勤怠から出す。
+
+データは Lambda に同梱した SQLite が初期データ。更新は学習用アカウントの非公開 S3 にある共有ファイルへ書き、次の読み取りからも見える。2026-11-02 から 2026-11-20 までを3人ぶん入れ、11月1日と21日以降は空で、その場で入力できる。DynamoDB と RDS は使わない。
 
 ## 動いている画面（デプロイ済み）
 

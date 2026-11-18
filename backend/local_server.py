@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from urllib.parse import unquote, urlparse
+from urllib.parse import parse_qs, unquote, urlparse
 
 from app import lambda_handler
 
@@ -17,9 +17,19 @@ class Handler(BaseHTTPRequestHandler):
         path = unquote(parsed.path)
         length = int(self.headers.get("Content-Length") or 0)
         raw = self.rfile.read(length).decode("utf-8") if length else ""
+        qs = {
+            key: values[0]
+            for key, values in parse_qs(parsed.query, keep_blank_values=True).items()
+            if values
+        }
         event = {
             "rawPath": path,
             "body": raw,
+            "queryStringParameters": qs or None,
+            "headers": {
+                "authorization": self.headers.get("Authorization") or "",
+                "content-type": self.headers.get("Content-Type") or "",
+            },
             "requestContext": {"http": {"method": self.command}},
         }
         result = lambda_handler(event, None)
@@ -40,6 +50,9 @@ class Handler(BaseHTTPRequestHandler):
         self._handle()
 
     def do_PUT(self) -> None:  # noqa: N802
+        self._handle()
+
+    def do_POST(self) -> None:  # noqa: N802
         self._handle()
 
     def log_message(self, format: str, *args) -> None:  # noqa: A003
