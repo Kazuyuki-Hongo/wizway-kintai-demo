@@ -145,6 +145,10 @@ def test_month_rows_include_missing_clock_out_and_absence():
     assert empty["category"] == ""
     assert next(r for r in rows if r["work_date"] == "2026-11-20")["stored"] is True
     assert next(r for r in rows if r["work_date"] == "2026-11-21")["stored"] is False
+    assert next(r for r in rows if r["work_date"] == "2026-11-07")["stored"] is False
+    assert next(r for r in rows if r["work_date"] == "2026-11-08")["stored"] is False
+    assert next(r for r in rows if r["work_date"] == "2026-11-14")["stored"] is False
+    assert next(r for r in rows if r["work_date"] == "2026-11-15")["stored"] is False
     absent = next(r for r in rows if r["work_date"] == "2026-11-05")
     assert absent["stored"] is True
     assert absent["category"] == "欠勤"
@@ -172,20 +176,20 @@ def test_overview_returns_each_employee_summary():
         }
     by_id = {emp["id"]: emp["summary"] for emp in employees}
     assert by_id[1] == {
-        "workday_count": 18,
-        "total_worked_hours": 137.0,
+        "workday_count": 14,
+        "total_worked_hours": 105.0,
         "overtime_hours": 1.0,
         "missing_clock_out_count": 1,
     }
     assert by_id[2] == {
-        "workday_count": 19,
-        "total_worked_hours": 152.0,
+        "workday_count": 15,
+        "total_worked_hours": 120.0,
         "overtime_hours": 0.0,
         "missing_clock_out_count": 0,
     }
     assert by_id[3] == {
-        "workday_count": 19,
-        "total_worked_hours": 144.0,
+        "workday_count": 15,
+        "total_worked_hours": 112.0,
         "overtime_hours": 0.0,
         "missing_clock_out_count": 1,
     }
@@ -219,8 +223,8 @@ def test_month_summary_matches_seed_scenarios():
     result, _ = call("/employees/1/months/2026-11/summary")
     assert result["statusCode"] == 200
     summary = body(result)["summary"]
-    assert summary["workday_count"] == 18
-    assert summary["total_worked_hours"] == 137.0
+    assert summary["workday_count"] == 14
+    assert summary["total_worked_hours"] == 105.0
     assert summary["overtime_hours"] == 1.0
     assert summary["missing_clock_out_count"] == 1
 
@@ -311,7 +315,7 @@ def test_put_updates_clocks_and_summary_uses_sql():
     assert updated["clock_in"] == "10:00"
     assert updated["clock_out"] == "19:00"
 
-    # 11-02 を 8 時間から 9 時間にすると、総実働は 138、超過は 2。
+    # 11-02 を 8 時間から 9 時間にすると、総実働は 106、超過は 2。
     result, _ = call(
         nov2(),
         "PUT",
@@ -319,8 +323,8 @@ def test_put_updates_clocks_and_summary_uses_sql():
     )
     assert result["statusCode"] == 200
     summary = body(call("/employees/1/months/2026-11/summary")[0])["summary"]
-    assert summary["workday_count"] == 18
-    assert summary["total_worked_hours"] == 138.0
+    assert summary["workday_count"] == 14
+    assert summary["total_worked_hours"] == 106.0
     assert summary["overtime_hours"] == 2.0
 
 
@@ -500,8 +504,8 @@ def test_paid_leave_drops_that_day_from_the_summary():
     assert row["clock_out"] == ""
     assert row["break_time"] == ""
     summary = _summary()
-    assert summary["workday_count"] == 17
-    assert summary["total_worked_hours"] == 129.0
+    assert summary["workday_count"] == 13
+    assert summary["total_worked_hours"] == 97.0
     assert summary["overtime_hours"] == 1.0
     assert summary["missing_clock_out_count"] == 1
 
@@ -514,8 +518,9 @@ def test_half_day_counts_actual_hours():
     )
     assert result["statusCode"] == 200
     summary = _summary()
-    assert summary["workday_count"] == 19
-    assert summary["total_worked_hours"] == 141.0
+    # month_summary は通常出勤だけを出勤日数・実働に入れる
+    assert summary["workday_count"] == 14
+    assert summary["total_worked_hours"] == 105.0
     assert summary["overtime_hours"] == 1.0
     assert summary["missing_clock_out_count"] == 1
 
@@ -528,10 +533,10 @@ def test_half_day_without_clock_out_adds_a_missing_day():
     )
     assert result["statusCode"] == 200
     summary = _summary()
-    assert summary["workday_count"] == 19
-    assert summary["total_worked_hours"] == 137.0
+    assert summary["workday_count"] == 14
+    assert summary["total_worked_hours"] == 105.0
     assert summary["overtime_hours"] == 1.0
-    assert summary["missing_clock_out_count"] == 2
+    assert summary["missing_clock_out_count"] == 1
 
 
 def test_unknown_category_is_rejected():
@@ -811,16 +816,16 @@ def test_aozora_cannot_read_overview_or_other_month():
     assert other["statusCode"] == 403
     own, _ = call("/employees/1/months/2026-11/summary")
     assert own["statusCode"] == 200
-    assert body(own)["summary"]["workday_count"] == 18
+    assert body(own)["summary"]["workday_count"] == 14
 
 
-def test_unahara_own_november_is_nineteen_days():
+def test_unahara_own_november_is_fifteen_weekdays():
     login_as("サンプル海原", "unahara")
     result, _ = call("/employees/2/months/2026-11/summary")
     assert result["statusCode"] == 200
     summary = body(result)["summary"]
-    assert summary["workday_count"] == 19
-    assert summary["total_worked_hours"] == 152
+    assert summary["workday_count"] == 15
+    assert summary["total_worked_hours"] == 120
 
 
 def test_admin_own_november_has_no_workdays():

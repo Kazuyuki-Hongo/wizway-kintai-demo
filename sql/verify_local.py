@@ -69,8 +69,8 @@ def main() -> None:
     summary_sql = (ROOT / "month_summary.sql").read_text(encoding="utf-8")
     s = dict(conn.execute(summary_sql, {"employee_id": 1, "ym": "2026-11"}).fetchone())
     print("emp1 summary:", s)
-    assert s["workday_count"] == 3  # 欠勤は含めない。退勤なしは出勤扱い
-    assert float(s["total_worked_hours"]) == 17.0  # 8 + 9
+    assert s["workday_count"] == 14  # 11/2-20 の平日から欠勤1日を除く。退勤なしは出勤扱い
+    assert float(s["total_worked_hours"]) == 105.0
     assert float(s["overtime_hours"]) == 1.0
     assert s["missing_clock_out_count"] == 1
 

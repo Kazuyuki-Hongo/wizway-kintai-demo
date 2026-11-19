@@ -37,8 +37,8 @@ def main() -> None:
     summary_res, _ = call("/employees/1/months/2026-11/summary")
     assert summary_res["statusCode"] == 200
     summary = json.loads(summary_res["body"])["summary"]
-    assert summary["workday_count"] == 3
-    assert summary["total_worked_hours"] == 17.0
+    assert summary["workday_count"] == 14
+    assert summary["total_worked_hours"] == 105.0
     assert summary["overtime_hours"] == 1.0
     assert summary["missing_clock_out_count"] == 1
     print("summary ok", summary)
