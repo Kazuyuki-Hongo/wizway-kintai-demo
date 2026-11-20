@@ -45,7 +45,7 @@ backend/          Python Lambda（API + 同梱 SQLite）
 frontend/         React + TypeScript（Vite）
 sql/              表定義・シード・合計 SELECT
 template.yaml     SAM（HTTP API + Lambda + S3 + CloudFront）
-docs/architecture.drawio  構成図
+docs/architecture.drawio / architecture.md  構成図（draw.io / Markdown）
 docs/rules/       Serena のプロジェクトルール
 openspec/         仕様と change（進行中と archive）
 backend/tests/    API の pytest
@@ -55,9 +55,9 @@ tests/e2e/        画面の受け入れ確認（Playwright）
 ### 構成図
 
 ブラウザ → CloudFront → S3（画面）  
-ブラウザ → HTTP API → Lambda → 同梱 SQLite
+ブラウザ → HTTP API → Lambda → 同梱 SQLite（更新は S3 共有へ）
 
-詳細: `docs/architecture.drawio`
+詳細: [`docs/architecture.drawio`](docs/architecture.drawio)（draw.io）／[`docs/architecture.md`](docs/architecture.md)（Markdown・Mermaid）
 
 ## 前提
 

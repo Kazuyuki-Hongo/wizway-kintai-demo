@@ -30,6 +30,55 @@ h1 {
   font-size: 0.95rem;
 }
 
+.who {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin: 0 0 0.75rem;
+}
+
+.who .probe {
+  margin-left: auto;
+  font-size: 0.8rem;
+  color: #777;
+  background: transparent;
+  border: 1px solid #ccc;
+}
+
+.shell {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 8.5rem;
+}
+
+.menu button[aria-current='page'] {
+  font-weight: 700;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+.accounts {
+  width: auto;
+  margin: 0 0 1.25rem;
+}
+
+.accounts caption {
+  caption-side: top;
+  text-align: left;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
 .controls {
   display: flex;
   flex-wrap: wrap;
@@ -46,10 +95,13 @@ label {
 }
 
 select,
+input[type="text"],
 input[type="month"] {
   min-width: 12rem;
   padding: 0.4rem 0.5rem;
   font-size: 1rem;
+  background: #fff;
+  border: 1px solid #8d97a3;
 }
 
 td select,
@@ -66,8 +118,24 @@ td button {
 }
 
 .error {
-  color: #b00020;
-  margin-bottom: 1rem;
+  color: #7a0016;
+  background: #fdecee;
+  border: 1px solid #b00020;
+  padding: 0.65rem 0.75rem;
+  margin: 0 0 1rem;
+  font-weight: 600;
+}
+
+.saved {
+  color: #0b6b2a;
+  margin: 0.35rem 0 0;
+}
+
+.edits {
+  margin: 0.35rem 0 0;
+  padding-left: 1.1rem;
+  color: #333;
+  font-size: 0.8rem;
 }
 
 .summary {
@@ -117,4 +185,122 @@ th {
 
 td.empty {
   color: #888;
+}
+
+td.work-date {
+  white-space: nowrap;
+}
+
+tr.row-saturday {
+  background: #e8f1fb;
+}
+
+tr.row-holiday {
+  background: #fdecee;
+}
+
+.time-field {
+  position: relative;
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+  min-width: 0;
+}
+
+.time-field input {
+  min-width: 4.5rem;
+  flex: 1;
+}
+
+.picker-toggle {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.35rem;
+  line-height: 0;
+}
+
+.picker-toggle .picker-icon {
+  display: block;
+}
+
+.picker-panel {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 0.2rem);
+  left: 0;
+  min-width: 11rem;
+  padding: 0.55rem;
+  background: #fff;
+  border: 1px solid #8d97a3;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.picker-hint {
+  margin: 0 0 0.4rem;
+  font-size: 0.75rem;
+  color: #555;
+}
+
+.picker-spinners {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+}
+
+.picker-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.picker-col-label {
+  font-size: 0.7rem;
+  color: #555;
+}
+
+.picker-col button {
+  padding: 0.15rem 0.45rem;
+  font-size: 0.75rem;
+  line-height: 1;
+}
+
+.picker-value {
+  font-variant-numeric: tabular-nums;
+  font-size: 1.1rem;
+  font-weight: 600;
+  min-width: 1.6rem;
+  text-align: center;
+}
+
+.picker-colon {
+  font-weight: 700;
+  margin-top: 0.9rem;
+}
+
+.picker-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-top: 0.45rem;
+}
+
+.picker-presets button {
+  padding: 0.2rem 0.4rem;
+  font-size: 0.75rem;
+}
+
+.picker-actions {
+  display: flex;
+  gap: 0.35rem;
+  margin-top: 0.45rem;
+  justify-content: flex-end;
+}
+
+.picker-actions button {
+  padding: 0.2rem 0.45rem;
+  font-size: 0.75rem;
 }
